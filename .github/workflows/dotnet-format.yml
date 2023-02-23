@@ -1,0 +1,12 @@
+name: .NET Format
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  dotnet-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: dotnet format format.csproj --verify-no-changes --verbosity detailed

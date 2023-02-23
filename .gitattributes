@@ -1,0 +1,129 @@
+# This .gitattributes file should be placed at the root of your Unity project directory
+# https://git-scm.com/docs/gitattributes
+
+# Macros
+[attr]unity-yaml diff eol=lf merge=unityyamlmerge
+[attr]unity-lfs diff=lfs filter=lfs merge=lfs -text
+
+# Normalize line endings if text
+* text=auto
+
+# Files with CRLF line endings
+*.cs eol=crlf
+
+# Files with LF line endings
+*.cginc eol=lf linguist-generated
+*.json eol=lf
+*.inputactions eol=lf
+*.shader eol=lf linguist-generated
+*.txt eol=lf
+*.vsconfig eol=lf
+
+# Smart merge for Unity YAML files
+# https://docs.unity3d.com/Manual/SmartMerge.html
+*.anim unity-yaml
+*.asmdef unity-yaml
+*.asset unity-yaml
+*.controller unity-yaml
+*.lighting unity-yaml
+*.mask unity-yaml
+*.mat unity-yaml
+*.meta unity-yaml
+*.mixer unity-yaml
+*.physicMaterial unity-yaml
+*.physicsMaterial2D unity-yaml
+*.playable unity-yaml
+*.prefab unity-yaml
+*.renderTexture unity-yaml
+*.signal unity-yaml
+*.terrainlayer unity-yaml
+*.unity unity-yaml
+*.wlt unity-yaml
+
+# Git Large File Storage
+# https://git-lfs.github.com
+# https://docs.unity3d.com/Manual/BuiltInImporters.html
+
+# 3D
+*.3ds unity-lfs
+*.blend unity-lfs
+*.c4d unity-lfs
+*.dae unity-lfs
+*.dxf unity-lfs
+*.fbx unity-lfs
+*.jas unity-lfs
+*.lxo unity-lfs
+*.ma unity-lfs
+*.max unity-lfs
+*.mb unity-lfs
+*.obj unity-lfs
+*.skp unity-lfs
+*.spm unity-lfs
+*.st unity-lfs
+
+# Audio
+*.aif unity-lfs
+*.aiff unity-lfs
+*.flac unity-lfs
+*.it unity-lfs
+*.mod unity-lfs
+*.mp3 unity-lfs
+*.ogg unity-lfs
+*.s3m unity-lfs
+*.wav unity-lfs
+*.xm unity-lfs
+
+# Font
+*.dfont unity-lfs
+*.otf unity-lfs
+*.tff unity-lfs
+*.ttc unity-lfs
+
+# Plugin
+*.aar unity-lfs
+*.bundle unity-lfs
+*.dll unity-lfs
+*.dylib unity-lfs
+*.jar unity-lfs
+*.java unity-lfs
+*.so unity-lfs
+
+# Special cases
+# default name: NavMesh.asset or NavMesh-GameObjectName.asset
+[Nn]av[Mm]esh*.asset unity-lfs
+/[Pp]roject[Ss]ettings/[Nn]av[Mm]esh[Aa]reas.asset diff= filter= merge= text
+# default name: New Terrain.asset
+*[Tt]errain.asset unity-lfs
+
+# Texture
+*.bmp unity-lfs
+*.exr unity-lfs
+*.gif unity-lfs
+*.hdr unity-lfs
+*.iff unity-lfs
+*.jpg unity-lfs
+*.jpeg unity-lfs
+*.pct unity-lfs
+*.pic unity-lfs
+*.pict unity-lfs
+*.png unity-lfs
+*.psd unity-lfs
+*.svg unity-lfs
+*.tga unity-lfs
+*.tif unity-lfs
+*.tiff unity-lfs
+*.xcf unity-lfs
+
+# Video
+*.avi unity-lfs
+*.asf unity-lfs
+*.dv unity-lfs
+*.mov unity-lfs
+*.mpeg unity-lfs
+*.mpg unity-lfs
+*.mp4 unity-lfs
+*.m4v unity-lfs
+*.ogv unity-lfs
+*.vp8 unity-lfs
+*.webm unity-lfs
+*.wmv unity-lfs
