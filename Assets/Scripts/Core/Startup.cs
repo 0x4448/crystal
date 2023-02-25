@@ -1,5 +1,5 @@
+// Copyright 2023 0x4448
 // SPDX-License-Identifier: Apache-2.0
-// https://github.com/0x4448/unity-samples/blob/main/LICENSE
 
 using UnityEngine;
 
