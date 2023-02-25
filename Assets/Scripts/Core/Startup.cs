@@ -3,10 +3,22 @@
 
 using UnityEngine;
 
-namespace UnitySamples
+namespace UnitySamples.Core
 {
     public class Startup : MonoBehaviour
     {
+        [SerializeField] private GameObject[] _managers;
+        [SerializeField] private AssetReferenceScene _nextScene;
 
+        private void Awake()
+        {
+            foreach (var manager in _managers)
+            {
+                var gameObject = Instantiate(manager);
+                gameObject.name = manager.name;
+            }
+
+            SceneManager.LoadScene(_nextScene, additive: false);
+        }
     }
 }
