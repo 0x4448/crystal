@@ -1,0 +1,12 @@
+<!--
+  Project file for running dotnet format in GitHub Actions.
+  This must reside in the same directory as .editorconfig.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!--
+      .NET Standard 2.1 requires Unity 2021.3 or newer.
+    -->
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+</Project>
