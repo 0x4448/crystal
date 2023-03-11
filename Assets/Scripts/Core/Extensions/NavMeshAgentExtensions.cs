@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 namespace UnitySamples.Core
 {
-    public static class NavMeshAgentExtension
+    public static class NavMeshAgentExtensions
     {
         public static bool AtDestination(this NavMeshAgent agent)
         {

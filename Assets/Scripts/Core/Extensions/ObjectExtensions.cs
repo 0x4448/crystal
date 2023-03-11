@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UnitySamples.Core
 {
-    public static class ObjectExtension
+    public static class ObjectExtensions
     {
         /// <inheritdoc cref="Debug.Log"/>
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
