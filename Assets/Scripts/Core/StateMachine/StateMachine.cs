@@ -2,27 +2,43 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace UnitySamples.Core
 {
     /// <summary>
-    /// A base class for state machines that can be attached to GameObjects.
+    /// The default concrete state machine class that can be attached to a GameObject.
+    /// </summary>
+    public class StateMachine : StateMachine<BaseState, Trigger> { }
+
+
+
+    /*
+     * The base state machine class is generic to allow for flexibility. If the type arguments in
+     * the default implementation is not suitable, you may substitute with your own.
+     */
+    /// <summary>
+    /// Generic base class for state machines that can be attached to GameObjects.
     /// </summary>
     /// <remarks>
-    /// Derive from this class to configure a state machine in the inspector.
+    /// Inherit from this class to configure a state machine in the inspector.
     /// State machine implementation: <see cref="SimpleStateMachine{TState, TTrigger}"/>
     /// </remarks>
-    /// <typeparam name="TTrigger">A flags enum of the available transition triggers.</typeparam>
-    public abstract class StateMachine<TTrigger> : MonoBehaviour where TTrigger : Enum
+    /// <typeparam name="TState">A base state type that implements Behaviour and IState.</typeparam>
+    /// <typeparam name="TTrigger">Any ScriptableObject.</typeparam>
+    public abstract class StateMachine<TState, TTrigger> : MonoBehaviour
+        where TState : Behaviour, IState
+        where TTrigger : ScriptableObject
     {
-        [field: SerializeField, ReadOnly] public BaseState CurrentState { get; private set; }
+        [field: SerializeField, ReadOnly] public TState CurrentState { get; private set; }
 
         [Tooltip("The first transition's from state is the initial state.")]
         [SerializeField] private Transition[] _transitions;
 
-        private static TTrigger[] _triggers;
+        public HashSet<TTrigger> Triggers { get; private set; } = new();
+
         private SimpleStateMachine<IState, TTrigger> _stateMachine;
 
         /// <summary>
@@ -51,16 +67,12 @@ namespace UnitySamples.Core
                 state.enabled = false;
             }
 
-            _triggers ??= (TTrigger[])Enum.GetValues(typeof(TTrigger));
-
             foreach (var transition in _transitions)
             {
-                foreach (var trigger in _triggers)
+                foreach (var trigger in transition.Triggers)
                 {
-                    if (transition.Trigger.HasFlag(trigger))
-                    {
-                        _stateMachine.AddTransition(transition.From, transition.To, trigger);
-                    }
+                    _stateMachine.AddTransition(transition.From, transition.To, trigger);
+                    _ = Triggers.Add(trigger);
                 }
             }
 
@@ -83,16 +95,28 @@ namespace UnitySamples.Core
         private void OnValidate()
         {
             // Set the name of each transition in the inspector.
+            if (_transitions == null)
+            {
+                return;
+            }
+
             foreach (var transition in _transitions)
             {
-                var triggerName = transition.Trigger.ToString().TitleCase();
-                transition.name = $"{transition.From} to {transition.To} on {triggerName}";
+                var name = $"{transition.From} to {transition.To} on";
+                foreach (var trigger in transition.Triggers)
+                {
+                    if (trigger != null)
+                    {
+                        name = $"{name} {trigger.name.TitleCase()},";
+                    }
+                }
+                transition.name = name.Trim(',');
             }
         }
 
         private void UpdateInspector()
         {
-            CurrentState = (BaseState)_stateMachine.CurrentState;
+            CurrentState = (TState)_stateMachine.CurrentState;
         }
 
         /// <summary>
@@ -103,9 +127,9 @@ namespace UnitySamples.Core
         {
             [HideInInspector] public string name;
 
-            public BaseState From;
-            public BaseState To;
-            public TTrigger Trigger;
+            public TState From;
+            public TState To;
+            public TTrigger[] Triggers;
         }
     }
 }
