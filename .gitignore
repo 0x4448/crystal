@@ -89,3 +89,7 @@ crashlytics-build.properties
 /Assets/AddressableAssetsData/iOS*
 /Assets/AddressableAssetsData/Android*
 /Assets/AddressableAssetsData/WindowsUniversal*
+
+# Work in progress ignores
+wipignore/
+wipignore.meta
