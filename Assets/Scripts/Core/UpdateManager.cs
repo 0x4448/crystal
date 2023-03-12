@@ -1,7 +1,7 @@
 // Copyright 2023 0x4448
 // SPDX-License-Identifier: Apache-2.0
 
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace UnitySamples.Core
@@ -18,7 +18,7 @@ namespace UnitySamples.Core
      */
 
     /// <summary>
-    /// Manages the frequency of MonoBehaviour updates.
+    /// Distributes MonoBehaviour updates across multiple frames.
     /// </summary>
     public static class UpdateManager
     {
@@ -27,7 +27,8 @@ namespace UnitySamples.Core
             _ = new GameObject("UpdateManager", typeof(Updater));
         }
 
-        private static readonly List<ManagedBehaviour> _behaviours = new();
+        // KeyedCollection is 10-15% slower than List but allows for unregistration in constant time.
+        private static readonly BehaviourCollection _behaviours = new();
 
         /// <summary>
         /// Add a behaviour to UpdateManager.
@@ -39,6 +40,15 @@ namespace UnitySamples.Core
             _behaviours.Add(new ManagedBehaviour(behaviour, frameSkip));
         }
 
+        /// <remarks>
+        /// Managed behaviours must unregister before they are destroyed.
+        /// </remarks>
+        /// <param name="behaviour"></param>
+        public static void Unregister(IManagedBehaviour behaviour)
+        {
+            _ = _behaviours.Remove(behaviour);
+        }
+
         /// <summary>
         /// Encapsulates the data required to process each IManagedBehaviour.
         /// </summary>
@@ -46,7 +56,7 @@ namespace UnitySamples.Core
         {
             public ManagedBehaviour(IManagedBehaviour behaviour, byte frameSkip)
             {
-                _behaviour = behaviour;
+                Behaviour = behaviour;
                 FrameSkip = (byte)Mathf.Max(1, frameSkip);
                 Offset = (byte)Random.Range(0, frameSkip);
             }
@@ -56,14 +66,13 @@ namespace UnitySamples.Core
             /// </summary>
             public byte Offset { get; }
             public byte FrameSkip { get; }
-            public bool IsNull => _behaviour == null;
-            public bool Enabled => _behaviour.enabled;
+            public bool Enabled => Behaviour.enabled;
 
-            private readonly IManagedBehaviour _behaviour;
+            public readonly IManagedBehaviour Behaviour;
 
             public void Update()
             {
-                _behaviour.ManagedUpdate();
+                Behaviour.ManagedUpdate();
             }
         }
 
@@ -76,28 +85,31 @@ namespace UnitySamples.Core
 
             private void Update()
             {
-                // Store Time.frameCount because it can be expensive with many objects.
+                // Store Time.frameCount because it can be expensive with many managed behaviours.
                 var frameCount = Time.frameCount;
 
-                // Reverse for loop because possible modification during iteration.
-                for (var i = _behaviours.Count - 1; i >= 0; i--)
+                foreach (var behaviour in _behaviours)
                 {
-                    var frame = frameCount + _behaviours[i].Offset;
-                    var skip = _behaviours[i].FrameSkip;
+                    var frame = frameCount + behaviour.Offset;
+                    var skip = behaviour.FrameSkip;
 
                     // Modulo operation first because it is slightly faster than null check.
-                    if (frame % skip == 0)
+                    if (frame % skip == 0 && behaviour.Enabled)
                     {
-                        if (_behaviours[i].IsNull)
-                        {
-                            _behaviours.RemoveAt(i);
-                        }
-                        else if (_behaviours[i].Enabled)
-                        {
-                            _behaviours[i].Update();
-                        }
+                        behaviour.Update();
                     }
                 }
+            }
+        }
+
+        /// <remarks>
+        /// Provides close to O(1) retrieval of behaviours by key.
+        /// </remarks>
+        private class BehaviourCollection : KeyedCollection<IManagedBehaviour, ManagedBehaviour>
+        {
+            protected override IManagedBehaviour GetKeyForItem(ManagedBehaviour item)
+            {
+                return item.Behaviour;
             }
         }
     }
