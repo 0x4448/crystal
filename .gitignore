@@ -91,5 +91,5 @@ crashlytics-build.properties
 /Assets/AddressableAssetsData/WindowsUniversal*
 
 # Work in progress ignores
-wipignore/
-wipignore.meta
+WIP/
+WIP.meta
