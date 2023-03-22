@@ -7,14 +7,20 @@ using UnityEngine;
 namespace UnitySamples.Core
 {
     /*
-     * The UpdateManger class is intended to solve two different problems:
+     * The UpdateManger class is intended to solve two categories of performance problems:
      *
      *   - Expensive Update methods, such as pathfinding, raycasts, etc.
      *   - Thousands of objects running update: https://blog.unity.com/technology/1k-update-calls
      *
-     *  A MonoBehaviour can register with UpdateManager in its Awake method and specify how
-     *  frequently its Update method should be called. For example, you can spawn 100k objects with
-     *  a frame skip of 20. Only 5k objects (on average) will be updated each frame.
+     *  It distributes updates across multiple frames. For example, you can spawn 100k objects that
+     *  update every 20 frames. Only 5k objects will update every frame on average.
+     *  
+     *  To use UpdateManager, the MonoBehaviour must:
+     *  - implement the IManagedBehaviour interface
+     *  - call Add and/or AddLate in Awake or OnEnable
+     *  - run gameplay code in ManagedUpdate and/or ManagedLateUpdate
+     *  - NOT implement Update and LateUpdate
+     *  - call Remove and/or RemoveLate in OnDisable or OnDestroy
      */
 
     /// <summary>
@@ -27,27 +33,38 @@ namespace UnitySamples.Core
             _ = new GameObject("UpdateManager", typeof(Updater));
         }
 
-        // KeyedCollection is 10-15% slower than List but allows for unregistration in constant time.
-        private static readonly BehaviourCollection _behaviours = new();
+        // KeyedCollection is 10-15% slower than List but allows for removal in constant time.
+        private static readonly BehaviourCollection _updateBehaviours = new();
+        private static readonly BehaviourCollection _lateUpdateBehaviours = new();
 
-        /// <summary>
-        /// Add a behaviour to UpdateManager.
-        /// </summary>
+
         /// <param name="behaviour">The behaviour to be managed.</param>
         /// <param name="frameSkip">The number of frames between updates.</param>
-        public static void Register(IManagedBehaviour behaviour, byte frameSkip)
+        public static void Add(IManagedBehaviour behaviour, byte frameSkip)
         {
-            _behaviours.Add(new ManagedBehaviour(behaviour, frameSkip));
+            _updateBehaviours.Add(new ManagedBehaviour(behaviour, frameSkip));
         }
 
         /// <remarks>
-        /// Managed behaviours must unregister before they are destroyed.
+        /// Managed behaviours must be removed before they are destroyed.
         /// </remarks>
-        /// <param name="behaviour"></param>
-        public static void Unregister(IManagedBehaviour behaviour)
+        public static void Remove(IManagedBehaviour behaviour)
         {
-            _ = _behaviours.Remove(behaviour);
+            _ = _updateBehaviours.Remove(behaviour);
         }
+
+        /// <inheritdoc cref="Add(IManagedBehaviour, byte)"/>
+        public static void AddLate(IManagedBehaviour behaviour, byte frameSkip)
+        {
+            _lateUpdateBehaviours.Add(new ManagedBehaviour(behaviour, frameSkip));
+        }
+
+        /// <inheritdoc cref="Remove(IManagedBehaviour, byte)"/>
+        public static void RemoveLate(IManagedBehaviour behaviour)
+        {
+            _ = _lateUpdateBehaviours.Remove(behaviour);
+        }
+
 
         /// <summary>
         /// Encapsulates the data required to process each IManagedBehaviour.
@@ -74,6 +91,11 @@ namespace UnitySamples.Core
             {
                 Behaviour.ManagedUpdate();
             }
+
+            public void LateUpdate()
+            {
+                Behaviour.ManagedLateUpdate();
+            }
         }
 
         private class Updater : MonoBehaviour
@@ -85,10 +107,20 @@ namespace UnitySamples.Core
 
             private void Update()
             {
-                // Store Time.frameCount because it can be expensive with many managed behaviours.
+                Run(_updateBehaviours, late: false);
+            }
+
+            private void LateUpdate()
+            {
+                Run(_lateUpdateBehaviours, late: true);
+            }
+
+            private void Run(BehaviourCollection behaviours, bool late)
+            {
+                // Cache Time.frameCount because it can be expensive with many managed behaviours.
                 var frameCount = Time.frameCount;
 
-                foreach (var behaviour in _behaviours)
+                foreach (var behaviour in behaviours)
                 {
                     var frame = frameCount + behaviour.Offset;
                     var skip = behaviour.FrameSkip;
@@ -96,7 +128,14 @@ namespace UnitySamples.Core
                     // Modulo operation first because it is slightly faster than null check.
                     if (frame % skip == 0 && behaviour.Enabled)
                     {
-                        behaviour.Update();
+                        if (late)
+                        {
+                            behaviour.LateUpdate();
+                        }
+                        else
+                        {
+                            behaviour.Update();
+                        }
                     }
                 }
             }
@@ -128,5 +167,10 @@ namespace UnitySamples.Core
         /// ManagedUpdate is called by UpdateManager.
         /// </summary>
         public void ManagedUpdate();
+
+        /// <summary>
+        /// ManagedLateUpdate is called by UpdateManager.
+        /// </summary>
+        public void ManagedLateUpdate();
     }
 }
