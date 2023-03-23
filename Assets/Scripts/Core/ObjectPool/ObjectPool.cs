@@ -14,7 +14,7 @@ namespace UnitySamples.Core
 
         public static ObjectPool Singleton;
 
-        private readonly Dictionary<GameObject, UnityEngine.Pool.ObjectPool<PooledObject>> _pools = new();
+        private readonly Dictionary<Type, UnityEngine.Pool.ObjectPool<PooledObject>> _pools = new();
 
         private void Awake()
         {
@@ -40,22 +40,22 @@ namespace UnitySamples.Core
             Singleton = null;
         }
 
-
-        public GameObject Get(GameObject prefab)
+        public GameObject Get<T>(Vector3 position, Quaternion rotation) where T : PooledObject
         {
-            return Get(prefab, Vector3.zero, Quaternion.identity);
-        }
-
-        public GameObject Get(GameObject prefab, Vector3 position, Quaternion rotation)
-        {
-            var pooledObject = _pools[prefab].Get();
+            var pooledObject = _pools[typeof(T)].Get();
             pooledObject.transform.SetPositionAndRotation(position, rotation);
             return pooledObject.gameObject;
         }
 
-        public void Return(GameObject prefab, PooledObject pooledObject)
+        public GameObject Get<T>() where T : PooledObject
         {
-            _pools[prefab].Release(pooledObject);
+            return Get<T>(Vector3.zero, Quaternion.identity);
+        }
+
+        public void Return(PooledObject pooledObject)
+        {
+            var type = pooledObject.GetType();
+            _pools[type].Release(pooledObject);
         }
 
 
@@ -70,7 +70,6 @@ namespace UnitySamples.Core
                 var go = Instantiate(config.Prefab, container.transform);
                 go.name = $"{config.Prefab.name}({go.GetInstanceID()})";
                 var pooledObject = go.GetComponent<PooledObject>();
-                pooledObject.Prefab = config.Prefab;
                 go.SetActive(false);
                 return pooledObject;
             };
@@ -91,20 +90,23 @@ namespace UnitySamples.Core
             }
 
             // Create the ObjectPool and add it to our pools.
-            _pools.Add(config.Prefab, new(Create, Get, Return, Delete, true, config.PrewarmCount, config.MaxPoolSize));
+            var type = config.Prefab.GetComponent<PooledObject>().GetType();
+            _pools.Add(type, new(Create, Get, Return, Delete, true, config.PrewarmCount, config.MaxPoolSize));
         }
 
         private void CreateObjects(PrefabConfig config)
         {
             var pooledObjects = new List<PooledObject>();
+            var type = config.Prefab.GetComponent<PooledObject>().GetType();
+
             for (var i = 0; i < config.PrewarmCount; i++)
             {
-                var pooledObject = _pools[config.Prefab].Get();
+                var pooledObject = _pools[type].Get();
                 pooledObjects.Add(pooledObject);
             }
             foreach (var pooledObject in pooledObjects)
             {
-                _pools[config.Prefab].Release(pooledObject);
+                _pools[type].Release(pooledObject);
             }
         }
 
