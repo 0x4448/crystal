@@ -5,6 +5,7 @@
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
+/[Bb]in/
 /[Bb]uild/
 /[Bb]uilds/
 /[Ll]ogs/
@@ -42,8 +43,10 @@
 ExportedObj/
 .consulo/
 *.csproj
+*.csproj.meta
 *.unityproj
 *.sln
+*.sln.meta
 *.suo
 *.tmp
 *.user
@@ -55,6 +58,8 @@ ExportedObj/
 *.mdb
 *.opendb
 *.VC.db
+obj.meta
+bin.meta
 
 # Unity3D generated meta files
 *.pidb.meta
