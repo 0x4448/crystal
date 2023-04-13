@@ -4,7 +4,7 @@
 using System.Collections.ObjectModel;
 using UnityEngine;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     /*
      * The UpdateManger class is intended to solve two categories of performance problems:

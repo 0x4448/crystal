@@ -3,7 +3,7 @@
 
 using UnityEngine;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     public static class ObjectExtensions
     {

@@ -3,7 +3,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace UnitySamples
+namespace DoubleHelix.Crystal
 {
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer

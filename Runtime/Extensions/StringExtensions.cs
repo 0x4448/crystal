@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     public static class StringExtensions
     {

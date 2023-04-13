@@ -1,5 +1,5 @@
 {
-    "name": "0x4448.CrystalFramework.Editor",
+    "name": "0x4448.Crystal.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:73dfa23ae07ff2748a83bf4a6e70d286"

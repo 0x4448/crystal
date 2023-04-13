@@ -7,7 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using LoadSceneMode = UnityEngine.SceneManagement.LoadSceneMode;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// A scene manager for addressable scenes.

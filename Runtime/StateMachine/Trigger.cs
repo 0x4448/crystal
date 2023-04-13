@@ -3,7 +3,7 @@
 
 using UnityEngine;
 
-namespace UnitySamples
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// A ScriptableObject with no additional implementation that can be used as a strigger.

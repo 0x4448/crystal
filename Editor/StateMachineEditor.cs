@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// Editor for the default concrete state machine class.

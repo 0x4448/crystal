@@ -3,7 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace UnitySamples
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// Makes a field read-only in the inspector.

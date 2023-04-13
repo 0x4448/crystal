@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// Implements the core functionality of a state machine.

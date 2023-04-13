@@ -3,7 +3,7 @@
 
 using UnityEngine.AI;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     public static class NavMeshAgentExtensions
     {

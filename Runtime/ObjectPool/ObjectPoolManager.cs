@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     public class ObjectPoolManager : MonoBehaviour
     {

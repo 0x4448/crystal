@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// The default concrete state machine class that can be attached to a GameObject.

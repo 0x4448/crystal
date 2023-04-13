@@ -3,7 +3,7 @@
 
 using UnityEngine;
 
-namespace UnitySamples.Core
+namespace DoubleHelix.Crystal
 {
     /// <summary>
     /// Parent class of MonoBehaviours that represent a state.
