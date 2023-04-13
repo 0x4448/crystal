@@ -1,0 +1,15 @@
+{
+    "author": {
+        "name": "0x4448",
+        "url": "https://github.com/0x4448"
+    },
+    "dependencies": {
+        "com.unity.addressables": "1.21.10"
+    },
+    "description": "Crystal Framework is a small collection of reusable code for Unity.",
+    "displayName": "Crystal Framework",
+    "license": "Apache-2.0",
+    "name": "com.0x4448.crystalframework",
+    "unity": "2021.3",
+    "version": "0.0.1"
+}
