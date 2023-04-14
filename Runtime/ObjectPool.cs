@@ -4,36 +4,33 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
+using UnityObjectPool = UnityEngine.Pool.ObjectPool<UnityEngine.GameObject>;
 
 namespace DoubleHelix.Crystal
 {
-    public class ObjectPoolManager : MonoBehaviour
+    [CreateAssetMenu(fileName = "NewObjectPool", menuName = "Crystal/ObjectPool")]
+    public class ObjectPool : ScriptableObject
     {
         [SerializeField] private PrefabConfig[] _prefabs;
-
-        public static ObjectPoolManager Singleton { get; private set; }
 
         /// <summary>
         /// Mapping of prefabs to their pools.
         /// </summary>
-        private readonly Dictionary<GameObject, ObjectPool<GameObject>> _pools = new();
+        private readonly Dictionary<GameObject, UnityObjectPool> _pools = new();
         /// <summary>
         /// Mapping of instantiated objects to the pool they came from.
         /// </summary>
-        private readonly Dictionary<GameObject, ObjectPool<GameObject>> _parents = new();
+        private readonly Dictionary<GameObject, UnityObjectPool> _parents = new();
 
-        private void Awake()
+        private bool _initCalled;
+
+        public void Initialize()
         {
-            if (Singleton)
+            if (_initCalled)
             {
-                Debug.LogWarning("An object pool manager already exists.", Singleton.gameObject);
-                Destroy(gameObject);
+                return;
             }
-            else
-            {
-                Singleton = this;
-            }
+            _initCalled = true;
 
             foreach (var config in _prefabs)
             {
@@ -54,15 +51,12 @@ namespace DoubleHelix.Crystal
             }
         }
 
-        private void OnDestroy()
-        {
-            Singleton = null;
-        }
-
-
         public GameObject Get(GameObject prefab, Vector3 position, Quaternion rotation)
         {
-            var pool = _pools[prefab];
+            if (!_pools.TryGetValue(prefab, out var pool))
+            {
+                Debug.LogError($"A pool was not found for prefab {prefab.name}. Did you initialize the pool?", this);
+            }
             var pooledObject = pool.Get();
             _ = _parents.TryAdd(pooledObject, pool);
             pooledObject.transform.SetPositionAndRotation(position, rotation);
@@ -82,13 +76,13 @@ namespace DoubleHelix.Crystal
             }
             else
             {
-                Debug.LogWarning($"{pooledObject.name} was not created from a pool.", pooledObject);
+                Debug.LogWarning($"{pooledObject.name} was not created from {name}.", pooledObject);
                 pooledObject.SetActive(false);
             }
         }
 
 
-        private ObjectPool<GameObject> CreatePool(PrefabConfig config)
+        private UnityObjectPool CreatePool(PrefabConfig config)
         {
             // Each prefab has a separate container to avoid polluting the scene with many objects.
             var container = new GameObject($"{config.Prefab.name} Pool");
@@ -121,6 +115,12 @@ namespace DoubleHelix.Crystal
             return new(Create, Get, Return, Delete, true, config.PrewarmCount, config.MaxPoolSize);
         }
 
+
+        private void OnDisable()
+        {
+            // ScriptableObject must be reset after use.
+            _initCalled = false;
+        }
 
         private void OnValidate()
         {
